@@ -46,7 +46,10 @@ const TrafficManagerDashboardScreen: React.FC<TrafficManagerDashboardScreenProps
 
     
     // KPI Calculations
-    const priorityVehicles = availableVehicles.filter(v => v.isPriority);
+    const activeAdsCount = useMemo(() => 
+        availableVehicles.filter(v => v.isAdActive).length,
+        [availableVehicles]
+    );
     const newVehiclesLast7Days = availableVehicles.filter(v => getDaysInStock(v.entryDate) <= 7);
     const totalAdBudget = availableVehicles.reduce((sum, v) => sum + v.adCost, 0);
     const monthlyBudget = activeCompany?.monthlyAdBudget || 0;
@@ -105,8 +108,8 @@ const TrafficManagerDashboardScreen: React.FC<TrafficManagerDashboardScreenProps
             
             {/* KPI Cards Section */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-8">
-                <KpiCard title="Anúncios Ativos" value={availableVehicles.length.toString()} trend="Total em estoque" icon={<CarIcon />} />
-                <KpiCard title="Veículos Prioritários" value={priorityVehicles.length.toString()} trend="Foco de campanha" icon={<MegaphoneIcon />} />
+                <KpiCard title="Total em Estoque" value={availableVehicles.length.toString()} trend="veículos disponíveis" icon={<CarIcon />} />
+                <KpiCard title="Anúncios Ativos" value={activeAdsCount.toString()} trend={`${availableVehicles.length > 0 ? Math.round((activeAdsCount / availableVehicles.length) * 100) : 0}% online`} icon={<MegaphoneIcon />} />
                 <KpiCard title="Novos Veículos (7d)" value={newVehiclesLast7Days.length.toString()} trend="Criar novas campanhas" icon={<TrendingUpIcon />} />
                 <KpiCard title="Orçamento de Anúncio" value={formatCurrency(monthlyBudget)} trend={budgetTrend} isLoss={budgetRemaining < 0} />
             </div>
